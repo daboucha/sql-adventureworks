@@ -234,3 +234,46 @@ to display the characters in the product number following the hyphen */
 SELECT ProductNumber, SUBSTRING(ProductNumber, CHARINDEX('-', ProductNumber)+1, LEN(ProductNumber)-CHARINDEX('-', ProductNumber)) AS AfterHyphen
 FROM Production.Product;
 
+-- ************************************ Using Date Functions ************************************ 
+
+/* Write a query that calculates the number of days between the date an order was placed and the date that it was shipped using the Sales.SalesOrderHeader table. 
+Include the SalesOrderID, OrderDate, and ShipDate columns */
+SELECT SalesOrderID, OrderDate, ShipDate, DATEDIFF(DAY, OrderDate, ShipDate) AS NumDays
+FROM Sales.SalesOrderHeader;
+
+-- Write a query that displays only the date, not the time, for the order date and ship date in the Sales.SalesOrderHeader table
+SELECT CONVERT(VARCHAR, OrderDate, 101) AS OrderDate, CONVERT(VARCHAR, ShipDate, 101) AS ShipDate
+FROM Sales.SalesOrderHeader;
+
+-- Write a query that adds six months to each order date in the Sales.SalesOrderHeader table. Include the SalesOrderID and OrderDate columns
+SELECT OrderDate, DATEADD(MONTH, 6, OrderDate) AS PlusSixMonths
+FROM Sales.SalesOrderHeader;
+
+/* Write a query that displays the year of each order date and the numeric month of each order date in separate columns in the results. 
+Include the SalesOrderID and OrderDate columns */
+SELECT SalesOrderID, OrderDate, DATEPART(YEAR, OrderDate) AS Year, DATEPART(MONTH, OrderDate) AS Month
+FROM Sales.SalesOrderHeader;
+
+-- Change the query to display the month name instead
+SELECT SalesOrderID, OrderDate, DATEPART(YEAR, OrderDate) AS Year, DATENAME(MONTH, OrderDate) AS Month
+FROM Sales.SalesOrderHeader;
+
+-- ************************************ Using Mathematical Functions ************************************ 
+
+-- Write a query using the Sales.SalesOrderHeader table that displays the SubTotal rounded to two decimal places. Include the SalesOrderID column in the results
+SELECT SalesOrderID, ROUND(SubTotal, 2) AS SubTotal
+FROM Sales.SalesOrderHeader;
+
+-- Modify the query so that the SubTotal is rounded to the nearest dollar but still displays two zeros to the right of the decimal place
+SELECT SalesOrderID, ROUND(SubTotal,0) AS SubTotal
+FROM Sales.SalesOrderHeader;
+
+-- Write a query that calculates the square root of the SalesOrderID value from the Sales.SalesOrderHeader table
+SELECT SQRT(SalesOrderID) AS RootOrderID
+FROM Sales.SalesOrderHeader;
+
+-- Write a statement that generates a random number between 1 and 10 each time it is run
+SELECT CAST(RAND()*10 AS INT)+1;
+
+-- ************************************ Using System Functions ************************************ 
+
