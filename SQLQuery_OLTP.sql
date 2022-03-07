@@ -155,8 +155,7 @@ FROM Production.Document
 WHERE CONTAINS(*, 'reflector AND NOT seat');
 
 /* Answer this question: 
-When searching a VARBINARY(MAX) column that contains Word documents,
-a LIKE search can be used, but the performance will be worse. True or false?
+When searching a VARBINARY(MAX) column that contains Word documents, a LIKE search can be used, but the performance will be worse. True or false?
 
 1) False, you cannot use LIKE with VARBINARY(MAX) columns. You would use Full-Text searching to search VARBINARY(MAX) columns */
 
@@ -187,4 +186,51 @@ WHERE LastName LIKE '%mith';
 --4
 SELECT ModifiedDate
 FROM Person.Person
-WHERE ModifiedDate BETWEEN '2000-01-01' and '2000-01-31'; 
+WHERE ModifiedDate BETWEEN '2000-01-01' and '2000-01-31'; -- ************************************ Writing Expressions Using Operators ************************************ -- Write a query that displays in the “AddressLine1 (City PostalCode)” format from the Person.Address tableSELECT AddressLine1 + ' (' + City + ' ' + PostalCode + ')' AS AddressFROM Person.Address/* Write a query using the Production.Product table displaying the product ID, color, and name columns. If the color column contains a NULL value, replace the color with No Color */SELECT ProductID, Name, ISNULL(Color, 'No Color') AS ColorFROM Production.Product;/* Modify the query so that the description of the product is displayed in the “Name: Color” format.Make sure that all rows display a value even if the Color value is missing */SELECT ProductID, (Name + ISNULL(': ' + Color, '')) AS DescriptionFROM Production.Product;-- Write a query using the Production.Product table displaying a description with the “ProductID: Name” formatSELECT CAST(ProductID AS varchar) + ': ' + Name AS DescriptionFROM Production.Product;/* Answer this question: 
+What is the difference between the ISNULL and COALESCE functions?
+
+1) You can use ISNULL to replace a NULL value or column with another value or column
+2) You can use COALESCE to return the first non-NULL value from a list of values or columns */
+
+-- ************************************ Using Mathematical Operators ************************************ 
+
+/* Write a query using the Sales.SpecialOffer table. 
+Display the difference between the MinQty and MaxQty columns along with the SpecialOfferID and Description columns */
+SELECT SpecialOfferID, Description, (MaxQty - MinQty) AS MinMaxQtyDifference
+FROM Sales.SpecialOffer;
+
+/* Write a query using the Sales.SpecialOffer table. 
+Multiply the MinQty column by the DiscountPct column. Include the SpecialOfferID and Description columns in the results */
+SELECT SpecialOfferID, Description, (MinQty*DiscountPct) AS MinDiscount
+FROM Sales.SpecialOffer;
+
+/* Write a query using the Sales.SpecialOffer table that multiplies the MaxQty column by the DiscountPCT column. 
+If the MaxQty value is null, replace it with the value 10. Include the SpecialOfferID and Description columns in the results */
+SELECT SpecialOfferID, Description, (ISNULL(MaxQty, 10)*DiscountPct) AS MaxDiscount
+FROM Sales.SpecialOffer;
+
+/* Answer this question: 
+What is the difference between division and modulo?
+
+1) When performing division, you divide two numbers, and the result, the quotient, is the answer
+2) When you are using modulo, you divide two numbers, but the reminder is the answer. If the numbers are evenly divisible, the answer will be zero */
+
+-- ************************************ Using String Functions ************************************ 
+
+-- Write a query that displays the first 10 characters of the AddressLine1 column in the Person.Address table
+SELECT LEFT(AddressLine1, 10) AS PartialAddress
+FROM Person.Address;
+
+-- Write a query that displays characters 10 to 15 of the AddressLine1 column in the Person.Address table
+SELECT SUBSTRING(AddressLine1, 10, 6) AS PartialAddress
+FROM Person.Address;
+
+-- Write a query displaying the first name and last name from the Person.Person table all in uppercase
+SELECT UPPER(FirstName) AS FirstName, UPPER(LastName) AS LastName
+FROM Person.Person;
+
+/* The product number in the Production.Product contains a hyphen (-). Write a query that uses the SUBSTRING function and the CHARINDEX function
+to display the characters in the product number following the hyphen */
+SELECT ProductNumber, SUBSTRING(ProductNumber, CHARINDEX('-', ProductNumber)+1, LEN(ProductNumber)-CHARINDEX('-', ProductNumber)) AS AfterHyphen
+FROM Production.Product;
+
