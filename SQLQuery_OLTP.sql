@@ -171,3 +171,20 @@ ORDER BY LastName, FirstName, MiddleName;
 SELECT BusinessEntityID, FirstName, MiddleName, LastName
 FROM Person.Person
 ORDER BY LastName DESC, FirstName DESC, MiddleName DESC;
+
+-- ************************************ Thinking About Performance ************************************ --1
+SELECT LastName
+FROM Person.Person
+WHERE LastName = 'Smith';
+--2
+SELECT LastName
+FROM Person.Person
+WHERE LastName LIKE 'Sm%';
+--3
+SELECT LastName
+FROM Person.Person
+WHERE LastName LIKE '%mith';
+--4
+SELECT ModifiedDate
+FROM Person.Person
+WHERE ModifiedDate BETWEEN '2000-01-01' and '2000-01-31'; 
