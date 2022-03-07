@@ -2,6 +2,8 @@
 USE [AdventureWorksLT2008R2]
 GO
 
+-- ************************************ Writing Simple SELECT Queries ************************************
+
 -- lists the customers along with their ID numbers. Include the last names, first names, and company names
 SELECT CustomerID, FirstName, LastName, CompanyName
 FROM SalesLT.Customer;
