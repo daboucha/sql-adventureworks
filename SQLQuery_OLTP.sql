@@ -397,3 +397,47 @@ INNER JOIN Sales.SalesOrderHeader AS SOH ON C.CustomerID = SOH.CustomerID
 INNER JOIN Sales.SalesOrderDetail AS SOD ON SOH.SalesOrderID = SOD.SalesOrderID
 INNER JOIN Production.Product AS Pr ON SOD.ProductID = Pr.ProductID; 
 
+-- *************************************** Writing Outer Joins ***************************************
+
+/* Write a query that displays all the products along with the SalesOrderID even if an order has never been placed for that product.
+Join to the Sales.SalesOrderDetail table using the ProductID column */
+SELECT SalesOrderID, P.ProductID, P.Name
+FROM Production.Product AS P
+LEFT OUTER JOIN Sales.SalesOrderDetail AS SOD ON P.ProductID = SOD.ProductID;
+
+-- Change the query so that only products that have not been ordered show up in the query
+SELECT SalesOrderID, P.ProductID, P.Name
+FROM Production.Product AS P
+LEFT OUTER JOIN Sales.SalesOrderDetail AS SOD ON P.ProductID = SOD.ProductID
+WHERE SalesOrderID IS NULL;
+
+/* Write a query that returns all the rows from the Sales.SalesPerson table joined to the Sales.SalesOrderHeader table along with the SalesOrderID column
+even if no orders match. Include the SalesPersonID and SalesYTD columns in the results */
+SELECT SOH.SalesOrderID, SOH.SalesPersonID, SP.SalesYTD
+FROM Sales.SalesPerson AS SP
+LEFT OUTER JOIN Sales.SalesOrderHeader AS SOH ON SP.BusinessEntityID = SOH.SalesPersonID;
+-- Change the query so that the salesperson’s name also displays from the Person.Person table
+SELECT SOH.SalesOrderID, SOH.SalesPersonID, SP.SalesYTD, P.FirstName, P.MiddleName, P.LastName
+FROM Sales.SalesPerson AS SP
+LEFT OUTER JOIN Sales.SalesOrderHeader AS SOH ON SP.BusinessEntityID = SOH.SalesPersonID
+LEFT OUTER JOIN Person.Person AS P ON SP.BusinessEntityID = P.BusinessEntityID;
+
+/* The Sales.SalesOrderHeader table contains foreign keys to the Sales.CurrencyRate and Purchasing.ShipMethod tables.
+Write a query joining all three tables, making sure it contains all rows from Sales.SalesOrderHeader. 
+Include the CurrencyRateID, AverageRate, SalesOrderID, and ShipBase columns */
+SELECT SOH.CurrencyRateID, CR.AverageRate, SOH.SalesOrderID, SM.ShipBase
+FROM Sales.SalesOrderHeader AS SOH
+LEFT OUTER JOIN Sales.CurrencyRate AS CR ON SOH.CurrencyRateID = CR.CurrencyRateID
+LEFT OUTER JOIN Purchasing.ShipMethod AS SM ON SOH.ShipMethodID = SM.ShipMethodID;
+
+-- Write a query that returns the BusinessEntityID column from the Sales.SalesPerson table along with every ProductID from the Production.Product table
+SELECT SP.BusinessEntityID, PR.ProductID
+FROM Sales.SalesPerson AS SP
+CROSS JOIN Production.Product AS PR;
+
+-- *************************************** Writing Subqueries ***************************************
+
+-- Using a subquery, display the product names and product ID numbers from the Production.Product table that have been ordered
+SELECT Name, ProductID
+FROM Production.Product
+WHERE ProductID IN (SELECT ProductID FROM Sales.SalesOrderDetail); 
