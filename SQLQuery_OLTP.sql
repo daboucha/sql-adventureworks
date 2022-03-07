@@ -109,7 +109,7 @@ WHERE TotalDue > 1000
 	AND (SalesPersonID = 279 OR TerritoryID IN (6,4));
 	
 /* Answer this question: 
-When does it makes sense to use the IN operator:
+When does it makes sense to use the IN operator?
 
 1) You would likely want to use the IN operator when checking a column for multiple values */
 
@@ -142,4 +142,32 @@ SELECT ProductID, Comments
 FROM Production.ProductReview
 WHERE CONTAINS(Comments, 'socks');
 
-SELECT FullTextServiceProperty('IsFullTextInstalled')
+/* Write a query using the Production.ProductReview table. Use CONTAINS to find all the rows that have the word reflector in any column
+that is indexed with Full-Text Search.  Display the Title and FileName columns */
+SELECT Title, FileName
+FROM Production.Document
+WHERE CONTAINS(*, 'reflector');
+
+/* Write a query using the Production.ProductReview table. Use CONTAINS to find all the rows that have the word reflector, and not the word seat
+in any column that is indexed with Full-Text Search.  Display the Title and FileName columns */
+SELECT Title, FileName
+FROM Production.Document
+WHERE CONTAINS(*, 'reflector AND NOT seat');
+
+/* Answer this question: 
+When searching a VARBINARY(MAX) column that contains Word documents,
+a LIKE search can be used, but the performance will be worse. True or false?
+
+1) False, you cannot use LIKE with VARBINARY(MAX) columns. You would use Full-Text searching to search VARBINARY(MAX) columns */
+
+-- ************************************ Sorting Data ************************************
+
+-- Write a query that returns the business entity ID and name columns from the Person.Person table. Sort the results by LastName, FirstName, and MiddleName
+SELECT BusinessEntityID, FirstName, MiddleName, LastName
+FROM Person.Person
+ORDER BY LastName, FirstName, MiddleName;
+
+-- Change the query so that it is in the opposite order
+SELECT BusinessEntityID, FirstName, MiddleName, LastName
+FROM Person.Person
+ORDER BY LastName DESC, FirstName DESC, MiddleName DESC;
