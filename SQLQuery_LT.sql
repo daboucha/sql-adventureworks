@@ -1,3 +1,7 @@
+-- use AdventureWorksLT2008R2 database
+USE [AdventureWorksLT2008R2]
+GO
+
 -- lists the customers along with their ID numbers. Include the last names, first names, and company names
 SELECT CustomerID, FirstName, LastName, CompanyName
 FROM SalesLT.Customer;
