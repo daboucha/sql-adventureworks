@@ -391,11 +391,9 @@ INNER JOIN Production.Product AS P ON P.ProductModelID = PM.ProductModelID;
 
 -- Write a query that displays the names of the customers along with the product names that they have purchased. 
 SELECT P.FirstName, P.MiddleName, P.LastName, Pr.Name
-FROM Person.Person AS P
-INNER JOIN Production.Product AS Pr ON
-
-SELECT *
-FROM Production.Product
-
-Hint: Five tables will be required to write this query
+FROM Sales.Customer AS C
+INNER JOIN Person.Person AS P ON C.PersonID = P.BusinessEntityID
+INNER JOIN Sales.SalesOrderHeader AS SOH ON C.CustomerID = SOH.CustomerID
+INNER JOIN Sales.SalesOrderDetail AS SOD ON SOH.SalesOrderID = SOD.SalesOrderID
+INNER JOIN Production.Product AS Pr ON SOD.ProductID = Pr.ProductID; 
 
