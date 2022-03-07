@@ -277,3 +277,125 @@ SELECT CAST(RAND()*10 AS INT)+1;
 
 -- ************************************ Using System Functions ************************************ 
 
+/* Write a query using the HumanResources.Employee table to display the BusinessEntityID column. 
+Also include a CASE statement that displays “Even” when the BusinessEntityID value is an even number or “Odd” when it is odd */
+SELECT BusinessEntityID,
+CASE
+	WHEN BusinessEntityID%2 = 0 THEN 'Even'
+	ELSE 'Odd'
+END AS OddEven
+FROM HumanResources.Employee;
+
+/* Write a query using the Sales.SalesOrderDetail table to display a value (“Under 10” or “10–19” or “20–29” or “30–39” or “40 and over”)
+based on the OrderQty value by using the CASE function. Include the SalesOrderID and OrderQty columns in the results */
+SELECT SalesOrderID, OrderQty,
+CASE
+	WHEN OrderQty < 10 THEN 'Under 10'
+	WHEN OrderQty < 20 THEN '10-19'
+	WHEN OrderQty < 30 THEN '20-29'
+	WHEN OrderQty < 40 THEN '30-39'
+	ELSE '40 and over'
+End AS OrderRange
+FROM Sales.SalesOrderDetail;
+
+/* Using the Person.Person table, build the full names using Title, FirstName, MiddleName, LastName, and Suffix columns.
+Check the table definition to see which columns allow NULL values, and use the COALESCE function on the appropriate columns */
+SELECT COALESCE(Title+' ', '') + FirstName + ' ' + COALESCE(MiddleName+' ', '') + LastName + COALESCE(', '+Suffix, '') AS FullName
+FROM Person.Person;
+
+-- Look up the SERVERPROPERTY function in Books Online. Write a statement that displays the edition, instance name, and machine name using this function
+SELECT SERVERPROPERTY('Edition'), SERVERPROPERTY('InstanceName'), SERVERPROPERTY('MachineName');
+
+-- ************************************ Using Functions in the WHERE and ORDER BY Clauses ************************************
+
+/* Write a query using the Sales.SalesOrderHeader table to display the orders placed during 2001 by using a function.
+Include the SalesOrderID and OrderDate columns in the results */
+SELECT SalesOrderID, OrderDate
+FROM Sales.SalesOrderHeader
+WHERE YEAR(OrderDate) = 2001;
+
+/* Write a query using the Sales.SalesOrderHeader table listing the sales in order of the month the order was placed and then the year the order was placed.
+Include the SalesOrderID and OrderDate columns in the results */
+SELECT SalesOrderID, OrderDate
+FROM Sales.SalesOrderHeader
+ORDER BY MONTH(OrderDate), YEAR(OrderDate);
+
+/* Write a query that displays the PersonType and the name columns from the Person.Person table.
+Sort the results so that rows with a PersonType of IN, SP, or SC sort by LastName. The other rows should sort by FirstName */
+SELECT PersonType, FirstName, MiddleName, LastName
+FROM Person.Person
+ORDER BY 
+CASE
+	WHEN PersonType IN ('IN', 'SP', 'SC') THEN LastName
+	ELSE FirstName
+END;
+
+-- ************************************ Thinking About Performance ************************************ --1
+SELECT Name
+FROM Production.Product
+WHERE Name LIKE 'B%';
+--2
+SELECT Name
+FROM Production.Product
+WHERE CHARINDEX('B',Name) = 1;
+--3
+SELECT LastName
+FROM Person.Person
+WHERE LastName LIKE '%i%';
+--4
+SELECT LastName
+FROM Person.Person
+WHERE CHARINDEX('i',LastName) > 0; 
+
+-- ************************************ Querying Multiple Tables  ************************************ 
+-- *************************************** Writing Inner Joins ***************************************
+
+/* The HumanResources.Employee table does not contain the employee names. Join that table to the Person.Person table on the BusinessEntityID column.
+Display the job title, birth date, first name, and last name */
+SELECT E.JobTitle, E.BirthDate, P.FirstName, P.LastName
+FROM HumanResources.Employee AS E
+INNER JOIN Person.Person AS P ON E.BusinessEntityID = P.BusinessEntityID;
+
+/* The customer names also appear in the Person.Person table. Join the Sales.Customer table to the Person.Person table. 
+The BusinessEntityID column in the Person.Person table matches the PersonID column in the Sales.Customer table. 
+Display the CustomerID, StoreID, and TerritoryID columns along with the name columns */
+SELECT C.CustomerID, C.StoreID, C.TerritoryID, P.FirstName, P.MiddleName, P.LastName
+FROM Sales.Customer AS C
+INNER JOIN Person.Person AS P ON C.PersonID = P.BusinessEntityID;
+
+/* Extend the query to include the Sales.SalesOrderHeader table. Display the SalesOrderID column along with the columns already specified. 
+The Sales.SalesOrderHeader table joins the Sales.Customer table on CustomerID */
+SELECT C.CustomerID, C.StoreID, C.TerritoryID, P.FirstName, P.MiddleName, P.LastName, S.SalesOrderID
+FROM Sales.Customer AS C
+INNER JOIN Person.Person AS P ON C.PersonID = P.BusinessEntityID
+INNER JOIN Sales.SalesOrderHeader AS S ON S.CustomerID = C.CustomerID;
+
+/* Write a query that joins the Sales.SalesOrderHeader table to the Sales.SalesPerson table.
+Join the BusinessEntityID column from the Sales.SalesPerson table to the SalesPersonID column in the Sales.SalesOrderHeader table.
+Display the SalesOrderID along with the SalesQuota and Bonus */
+SELECT SOH.SalesOrderID, SP.SalesQuota, SP.Bonus
+FROM Sales.SalesOrderHeader AS SOH
+INNER JOIN Sales.SalesPerson AS SP ON SP.BusinessEntityID = SOH.SalesPersonID;
+
+-- Add the name columns to the query by joining on the Person.Person table. Figure out which columns will be used to write the join
+SELECT SOH.SalesOrderID, SP.SalesQuota, SP.Bonus, P.FirstName, P.MiddleName, P.LastName
+FROM Sales.SalesOrderHeader AS SOH
+INNER JOIN Sales.SalesPerson AS SP ON SP.BusinessEntityID = SOH.SalesPersonID
+INNER JOIN Person.Person AS P ON P.BusinessEntityID = SP.BusinessEntityID;
+
+/* The catalog description for each product is stored in the Production.ProductModel table.
+Display the columns that describe the product from the Production.Product table, such as the color and size along with the catalog description for each product */
+SELECT PM.CatalogDescription, P.Color, P.Size
+FROM Production.ProductModel AS PM
+INNER JOIN Production.Product AS P ON P.ProductModelID = PM.ProductModelID;
+
+-- Write a query that displays the names of the customers along with the product names that they have purchased. 
+SELECT P.FirstName, P.MiddleName, P.LastName, Pr.Name
+FROM Person.Person AS P
+INNER JOIN Production.Product AS Pr ON
+
+SELECT *
+FROM Production.Product
+
+Hint: Five tables will be required to write this query
+
