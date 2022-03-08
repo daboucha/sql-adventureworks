@@ -489,4 +489,119 @@ FROM Sales.SalesOrderHeader AS o
 INNER JOIN Sales.SalesOrderDetail AS d
 ON o.SalesOrderID = d.OrderID; 
 
--- *************************************** Grouping and Summarizing Data ***************************************
+-- *************************************** Grouping and Summarizing Data *************************************** 
+-- *************************************** Using Aggregate Functions ***************************************
+
+-- Write a query to determine the number of customers in the Sales.Customer table
+SELECT COUNT(CustomerID) AS CustomerCount
+FROM Sales.Customer;
+
+-- Write a query that lists the total number of products ordered. Use the OrderQty column of the Sales.SalesOrderDetail table and the SUM function
+SELECT SUM(OrderQty) AS TotalOrders
+FROM Sales.SalesOrderDetail;
+
+-- Write a query to determine the price of the most expensive product ordered. Use the UnitPrice column of the Sales.SalesOrderDetail table
+SELECT MAX(UnitPrice) AS MostExpensiveProduct
+FROM Sales.SalesOrderDetail;
+
+-- Write a query to determine the average freight amount in the Sales.SalesOrderHeader table
+SELECT AVG(Freight) AS AvgFreight
+FROM Sales.SalesOrderHeader;
+
+-- Write a query using the Production.Product table that displays the minimum, maximum, and average ListPrice
+SELECT MIN(ListPrice) AS MinPrice, MAX(ListPrice) AS MaxPrice, AVG(ListPrice) AS AvgPrice
+FROM Production.Product;
+
+-- *************************************** Using the GROUP BY Clause ***************************************
+
+-- Write a query that shows the total number of items ordered for each product. Use the Sales.SalesOrderDetail table to write the query
+SELECT ProductID, SUM(OrderQty) AS TotalOrders
+FROM Sales.SalesOrderDetail
+GROUP BY ProductID;
+
+-- Write a query using the Sales.SalesOrderDetail table that displays a count of the detail lines for each SalesOrderID
+SELECT SalesOrderID, COUNT(*) AS NumLines
+FROM Sales.SalesOrderDetail
+GROUP BY SalesOrderID;
+
+-- Write a query using the Production.Product table that lists a count of the products in each product line
+SELECT ProductLine, COUNT(*) AS NumProducts
+FROM Production.Product
+GROUP BY ProductLine;
+
+-- Write a query that displays the count of orders placed by year for each customer using the Sales.SalesOrderHeader table
+SELECT CustomerID, YEAR(OrderDate) AS Year, COUNT(*) AS NumOrders
+FROM Sales.SalesOrderHeader
+GROUP BY CustomerID, YEAR(OrderDate)
+ORDER BY CustomerID, YEAR(OrderDate);
+
+-- *************************************** Using the HAVING Clause ***************************************
+
+/* Write a query that returns a count of detail lines in the Sales.SalesOrderDetail table by SalesOrderID.
+Include only those sales that have more than three detail lines */
+SELECT SalesOrderID, COUNT(*) AS NumLines
+FROM Sales.SalesOrderDetail
+GROUP BY SalesOrderID
+HAVING COUNT(*) > 3;
+
+/*  Write a query that creates a sum of the LineTotal in the Sales.SalesOrderDetail table grouped by the SalesOrderID.
+Include only those rows where the sum exceeds 1,000 */
+SELECT SalesOrderID, SUM(LineTotal) AS SumLines
+FROM Sales.SalesOrderDetail
+GROUP BY SalesOrderID
+HAVING SUM(LineTotal) > 1000;
+
+-- Write a query that groups the products by ProductModelID along with a count. Display the rows that have a count that equals 1
+SELECT ProductModelID, COUNT(*) AS NumProducts
+FROM Production.Product
+GROUP BY ProductModelID
+HAVING COUNT(*) = 1;
+
+-- Change the query so that only the products with the color blue or red are included
+SELECT ProductModelID, Color, COUNT(*) AS NumProducts
+FROM Production.Product
+WHERE Color IN ('Red', 'Blue')
+GROUP BY ProductModelID, Color
+HAVING COUNT(*) = 1;
+
+-- *************************************** Using DISTINCT ***************************************
+
+-- Write a query using the Sales.SalesOrderDetail table to come up with a count of unique ProductID values that have been ordered
+SELECT COUNT(DISTINCT ProductID) AS NumDistinctProducts
+FROM Sales.SalesOrderDetail;
+
+-- Write a query using the Sales.SalesOrderHeader table that returns the count of unique TerritoryID values per customer
+SELECT CustomerID, COUNT(DISTINCT TerritoryID) AS UniqueTerritories
+FROM Sales.SalesOrderHeader
+GROUP BY CustomerID;
+
+-- *************************************** Using Aggregate Queries with More Than One Table  ***************************************
+
+/* Write a query joining the Person.Person, Sales.Customer, and Sales.SalesOrderHeader tables to return a list of the customer names
+along with a count of the orders placed */
+SELECT P.FirstName, P.MiddleName, P.LastName, COUNT(SOH.CustomerID) AS NumOrders
+FROM Person.Person AS P
+INNER JOIN Sales.Customer AS C ON P.BusinessEntityID = C.PersonID
+INNER JOIN Sales.SalesOrderHeader AS SOH ON C.CustomerID = SOH.CustomerID
+GROUP BY P.FirstName, P.MiddleName, P.LastName;
+
+/* Write a query using the Sales.SalesOrderHeader, Sales.SalesOrderDetail, and Production.Product tables to display
+the total sum of products by ProductID and OrderDate */
+SELECT P.ProductID, SOH.OrderDate, SUM(SOD.OrderQty) AS NumOrders
+FROM Sales.SalesOrderHeader AS SOH
+INNER JOIN Sales.SalesOrderDetail AS SOD ON SOH.SalesOrderID = SOD.SalesOrderDetailID
+INNER JOIN Production.Product AS P ON SOD.ProductID = P.ProductID
+GROUP BY P.ProductID, SOH.OrderDate;
+
+-- *************************************** Isolating Aggregate Query Logic  ***************************************
+
+/* Write a query that joins the HumanResources.Employee table to the Person.Person table so that you can display the FirstName, LastName, and HireDate
+columns for each employee. Display the JobTitle along with a count of employees for the title. Use a derived table to solve this query */
+SELECT *
+FROM HumanResources.Employee
+
+SELECT *
+FROM HumanResources.Employee
+
+SELECT *
+FROM Person.Person
