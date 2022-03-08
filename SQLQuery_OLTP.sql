@@ -597,11 +597,77 @@ GROUP BY P.ProductID, SOH.OrderDate;
 
 /* Write a query that joins the HumanResources.Employee table to the Person.Person table so that you can display the FirstName, LastName, and HireDate
 columns for each employee. Display the JobTitle along with a count of employees for the title. Use a derived table to solve this query */
-SELECT *
-FROM HumanResources.Employee
+SELECT P.FirstName, P.LastName, E.HireDate, E.JobTitle, NumEmployees
+FROM HumanResources.Employee AS E
+INNER JOIN (
+	SELECT FirstName, LastName, BusinessEntityID
+	FROM Person.Person) AS P
+	ON E.BusinessEntityID = P.BusinessEntityID
+INNER JOIN (
+	SELECT JobTitle, COUNT(*) AS NumEmployees
+	FROM HumanResources.Employee
+	GROUP BY JobTitle) AS J ON E.JobTitle = J.JobTitle;
 
-SELECT *
-FROM HumanResources.Employee
+-- Rewrite the query a CTE
+WITH J AS (
+	SELECT JobTitle, COUNT(*) AS NumEmployees
+	FROM HumanResources.Employee
+	GROUP BY JobTitle
+	)
+SELECT P.FirstName, P.LastName, E.HireDate, E.JobTitle, NumEmployees
+FROM HumanResources.Employee AS E
+INNER JOIN Person.Person AS P ON E.BusinessEntityID = P.BusinessEntityID
+INNER JOIN J ON E.JobTitle = J.JobTitle;
 
-SELECT *
-FROM Person.Person
+-- Rewrite the query using the OVER clause
+SELECT P.FirstName, P.LastName, E.HireDate, E.JobTitle, COUNT(*) OVER(PARTITION BY E.JobTitle) AS NumEmployees
+FROM HumanResources.Employee AS E
+INNER JOIN Person.Person AS P ON E.BusinessEntityID = P.BusinessEntityID
+
+/* Display the CustomerID, SalesOrderID, and OrderDate for each Sales.SalesOrderHeader row as long as the customer has placed at least five orders.
+Use any of the techniques from this section to come up with the query */
+SELECT CustomerID, SalesOrderID, OrderDate
+FROM Sales.SalesOrderHeader
+WHERE CustomerID IN
+	(SELECT CustomerID
+	FROM Sales.SalesOrderHeader
+	GROUP BY CustomerID
+	HAVING COUNT(*) > 4);
+
+-- *************************************** Thinking About Performance  ***************************************
+
+--1
+WITH SumSale AS (
+	SELECT SUM(TotalDue) AS SumTotalDue, CustomerID
+	FROM Sales.SalesOrderHeader
+	GROUP BY CustomerID)
+SELECT O.CustomerID, TotalDue, (TotalDue / SumTotalDue * 100) AS PercentOfSales
+FROM SumSale
+INNER JOIN Sales.SalesOrderHeader AS O
+ON SumSale.CustomerID = O.CustomerID
+ORDER BY CustomerID;
+--2
+SELECT CustomerID, TotalDue, TotalDue / SUM(TotalDue) OVER(PARTITION BY CustomerID) * 100 AS PercentOfSales
+FROM Sales.SalesOrderHeader
+ORDER BY CustomerID; 
+--3
+WITH SumSale AS (
+	SELECT SUM(TotalDue) AS SumTotalDue, CustomerID
+	FROM Sales.SalesOrderHeader
+	GROUP BY CustomerID), 
+	TerrSales AS (
+	SELECT SUM(TotalDue) AS SumTerritoryTotalDue, TerritoryID
+	FROM Sales.SalesOrderHeader
+	GROUP BY TerritoryID)
+SELECT O.CustomerID, TotalDue, (TotalDue / SumTotalDue * 100) AS PercentOfCustSales, (TotalDue / SumTerritoryTotalDue * 100) AS PercentOfTerrSales
+FROM SumSale
+INNER JOIN Sales.SalesOrderHeader AS O ON SumSale.CustomerID = O.CustomerID
+INNER JOIN TerrSales ON TerrSales.TerritoryID = O.TerritoryID
+ORDER BY CustomerID;
+--4
+SELECT CustomerID, TotalDue, TotalDue / SUM(TotalDue) OVER(PARTITION BY CustomerID) * 100 AS PercentOfCustSales, 
+		TotalDue / SUM(TotalDue) OVER(PARTITION BY TerritoryID) * 100 AS PercentOfTerrSales
+FROM Sales.SalesOrderHeader
+ORDER BY CustomerID; 
+
+
