@@ -132,9 +132,56 @@ WHERE ProductID NOT IN (
 
 /* Write an INSERT statement that inserts all the addresses into the dbo.demoAddress table from the SalesLT.Address table.
 Before running the INSERT statement, type and run the command so that you can insert values into the AddressID column */
+SET IDENTITY_INSERT dbo.demoAddress ON;
+
 INSERT INTO dbo.demoAddress (AddressID, AddressLine1, AddressLine2, City, StateProvince, CountryRegion, PostalCode)
 SELECT AddressID, AddressLine1, AddressLine2, City, StateProvince, CountryRegion, PostalCode
 FROM SalesLT.Address;
 
 --to turn the setting off
 SET IDENTITY_INSERT dbo.demoAddress OFF;
+
+-- *************************************** Deleting Rows ***************************************
+
+-- Write a query that deletes the rows from the dbo.demoCustomer table where the LastName values begin with the letter S
+SELECT *
+INTO dbo.demoCustomer
+FROM SalesLT.Customer;
+
+DELETE
+FROM dbo.demoCustomer
+WHERE LastName LIKE 'S%';
+
+/* Delete the rows from the dbo.demoCustomer table if the customer has not placed an order or if the sum of the TotalDue from the
+dbo.demoSalesOrderHeader table for the customer is less than $1,000 */
+DELETE
+FROM dbo.demoCustomer
+WHERE CustomerID IN (
+	SELECT dC.CustomerID
+	FROM dbo.demoCustomer AS dC
+	LEFT OUTER JOIN dbo.demoSalesOrderHeader AS dSOH
+	ON dC.CustomerID = dSOH.CustomerID
+	GROUP BY dC.CustomerID
+	HAVING SUM(ISNULL(dSOH.TotalDue, 0)) < 1000);
+
+-- Delete the rows from the dbo.demoProduct table that have never been ordered
+DELETE
+FROM dbo.demoProduct
+WHERE ProductID NOT IN (
+	SELECT ProductID
+	FROM SalesLT.SalesOrderDetail);
+
+-- *************************************** Updating Existing Rows ***************************************
+
+-- Write an UPDATE statement that changes all NULL values of the AddressLine2 column in the dbo.demoAddress table to N/A
+UPDATE dbo.demoAddress
+SET AddressLine2 = 'N/A'
+WHERE AddressLine2 IS NULL;
+
+-- Write an UPDATE statement that increases the ListPrice of every product in the dbo.demoProduct table by 10 percent
+UPDATE dbo.demoProduct
+SET ListPrice = ListPrice * 1.1;
+
+/* Write an UPDATE statement that corrects the UnitPrice with the ListPrice of each row of the dbo.demoSalesOrderDetail table by joining
+the table on the dbo.demoProduct table */
+
