@@ -184,4 +184,54 @@ SET ListPrice = ListPrice * 1.1;
 
 /* Write an UPDATE statement that corrects the UnitPrice with the ListPrice of each row of the dbo.demoSalesOrderDetail table by joining
 the table on the dbo.demoProduct table */
+SELECT *
+INTO dbo.demoSalesOrderDetail
+FROM SalesLT.SalesOrderDetail;
 
+UPDATE SOD
+SET UnitPrice = P.ListPrice
+FROM dbo.demoSalesOrderDetail AS SOD
+INNER JOIN dbo.demoProduct AS P ON SOD.ProductID = P.ProductID; 
+
+/* Write an UPDATE statement that updates the SubTotal column of each row of the dbo.demoSalesOrderHeader table
+with the sum of the LineTotal column of the dbo.demoSalesOrderDetail table */
+WITH SOD AS (
+	SELECT SalesOrderID, SUM(LineTotal) AS SumLineTotal
+	FROM dbo.demoSalesOrderDetail
+	GROUP BY SalesOrderID)
+UPDATE SOH
+SET SOH.SubTotal = SOD.SumLineTotal
+FROM dbo.demoSalesOrderHeader AS SOH
+INNER JOIN SOD ON SOD.SalesOrderID = SOH.SalesOrderID;
+
+-- *************************************** Using Transactions ***************************************
+
+IF OBJECT_ID('dbo.Demo') IS NOT NULL BEGIN
+	DROP TABLE dbo.Demo;
+END;
+GO
+CREATE TABLE dbo.Demo(ID INT PRIMARY KEY, Name VARCHAR(25));
+
+-- Write a transaction that includes two insert statements to add two rows to the dbo.Demo table
+BEGIN TRAN
+	INSERT INTO dbo.Demo(ID, Name)
+	VALUES (1, 'Test1');
+	INSERT INTO dbo.Demo(ID, Name)
+	VALUES(2, 'Test2');
+COMMIT TRAN;
+
+SELECT *
+FROM dbo.Demo;
+
+/* Write a transaction that includes two insert statements to add two more rows to the dbo.Demo table. 
+Attempt to insert a letter instead of a number into the ID column in one of the statements.
+Select the data from the dbo.Demo table to see which rows made it into the table */
+BEGIN TRAN
+	INSERT INTO dbo.Demo(ID, Name)
+	VALUES (3, 'Test3')
+	INSERT INTO dbo.Demo(ID, Name)
+	VALUES ('D', 'Test4')
+COMMIT TRAN;
+
+SELECT *
+FROM dbo.Demo;
