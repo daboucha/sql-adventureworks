@@ -108,3 +108,33 @@ VALUES (711,'Sport-100 Helmet, Blue','Blue', 13.0863,34.99,NULL,NULL),
 	
 SELECT ProductID, Name, Color, StandardCost, ListPrice, Size, Weight
 FROM dbo.demoProduct;
+
+-- Write an INSERT statement that inserts all the rows into the dbo.demoSalesOrderHeader table from the SalesLT.SalesOrderHeader table
+INSERT INTO dbo.demoSalesOrderHeader (SalesOrderID, OrderDate, CustomerID, SubTotal, TaxAmt, Freight)
+SELECT SalesOrderID, OrderDate, CustomerID, SubTotal, TaxAmt, Freight
+FROM SalesLT.SalesOrderHeader;
+
+/* Write a SELECT INTO statement that creates a table, dbo.tempCustomerSales, showing every CustomerID from the SalesLT.Customer
+along with a count of the orders placed and the total amount due for each customer */
+SELECT C.CustomerID, COUNT(ISNULL(SOH.SalesOrderID, 0)) AS NumOrders, SUM(SOH.TotalDue) AS TotalDue
+INTO dbo.tempCustomerSales
+FROM SalesLT.Customer AS C
+LEFT OUTER JOIN SalesLT.SalesOrderHeader AS SOH ON C.CustomerID = SOH.CustomerID
+GROUP BY C.CustomerID;
+
+/* Write an INSERT statement that inserts all the products into the dbo.demoProduct table from the SalesLT.Product table that have not
+already been inserted. Do not specify literal ProductID values in the statement */
+INSERT INTO dbo.demoProduct (ProductID, Name, Color, StandardCost, ListPrice, Size, Weight)
+SELECT ProductID, Name, Color, StandardCost, ListPrice, Size, Weight
+FROM SalesLT.Product
+WHERE ProductID NOT IN (
+	SELECT ProductID FROM dbo.demoProduct);
+
+/* Write an INSERT statement that inserts all the addresses into the dbo.demoAddress table from the SalesLT.Address table.
+Before running the INSERT statement, type and run the command so that you can insert values into the AddressID column */
+INSERT INTO dbo.demoAddress (AddressID, AddressLine1, AddressLine2, City, StateProvince, CountryRegion, PostalCode)
+SELECT AddressID, AddressLine1, AddressLine2, City, StateProvince, CountryRegion, PostalCode
+FROM SalesLT.Address;
+
+--to turn the setting off
+SET IDENTITY_INSERT dbo.demoAddress OFF;
