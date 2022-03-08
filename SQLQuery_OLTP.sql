@@ -440,4 +440,53 @@ CROSS JOIN Production.Product AS PR;
 -- Using a subquery, display the product names and product ID numbers from the Production.Product table that have been ordered
 SELECT Name, ProductID
 FROM Production.Product
-WHERE ProductID IN (SELECT ProductID FROM Sales.SalesOrderDetail); 
+WHERE ProductID IN (SELECT ProductID FROM Sales.SalesOrderDetail); -- Change the query written to display the products that have not been orderedSELECT Name, ProductID
+FROM Production.Product
+WHERE ProductID NOT IN (SELECT ProductID FROM Sales.SalesOrderDetailWHERE ProductID IS NOT NULL); -- Write a UNION query that combines the ModifiedDate from Person.Person and the HireDate from HumanResources.EmployeeSELECT ModifiedDateFROM Person.PersonUNIONSELECT HireDateFROM HumanResources.Employee;-- *************************************** Exploring Derived Tables and Common Table Expressions ***************************************/* Using a derived table, join the Sales.SalesOrderHeader table to the Sales.SalesOrderDetail table.
+Display the SalesOrderID, OrderDate, and ProductID columns in the results. The Sales.SalesOrderDetail table should be inside the derived table query */
+SELECT SOH.SalesOrderID, SOH.OrderDate, SOD.ProductID
+FROM Sales.SalesOrderHeader AS SOH
+INNER JOIN (
+	SELECT SalesOrderID, ProductID	
+	FROM Sales.SalesOrderDetail) AS SOD
+	ON SOH.SalesOrderID = SOD.SalesOrderID;
+
+-- Rewrite the query with a common table expression
+WITH SOH AS (
+	SELECT SalesOrderID, OrderDate
+	FROM Sales.SalesOrderHeader
+	)
+SELECT SOH.SalesOrderID, SOH.OrderDate, SOD.ProductID
+FROM Sales.SalesOrderDetail AS SOD
+INNER JOIN SOH ON SOH.SalesOrderID = SOD.SalesOrderID;
+
+/* Write a query that displays all customers along with the orders placed in 2001.
+Use a common table expression to write the query and include the CustomerID, SalesOrderID, and OrderDate columns in the results */
+WITH SOH AS (
+	SELECT CustomerID, SalesOrderID, OrderDate
+	FROM Sales.SalesOrderHeader
+	WHERE YEAR(OrderDate) = 2001
+	)
+SELECT C.CustomerID, SalesOrderID, OrderDate
+FROM Sales.Customer AS C
+LEFT OUTER JOIN SOH ON C.CustomerID = SOH.CustomerID;
+
+-- *************************************** Thinking About Performance ***************************************
+
+USE AdventureWorks2008R2;
+GO
+ALTER TABLE Sales.SalesOrderDetail ADD OrderID INT NULL;
+GO
+UPDATE Sales.SalesOrderDetail SET OrderID = SalesOrderID;
+
+--1
+SELECT o.SalesOrderID,d.SalesOrderDetailID
+FROM Sales.SalesOrderHeader AS o
+INNER JOIN Sales.SalesOrderDetail AS d ON o.SalesOrderID = d.SalesOrderID; 
+--2
+SELECT o.SalesOrderID,d.SalesOrderDetailID
+FROM Sales.SalesOrderHeader AS o
+INNER JOIN Sales.SalesOrderDetail AS d
+ON o.SalesOrderID = d.OrderID; 
+
+-- *************************************** Grouping and Summarizing Data ***************************************
